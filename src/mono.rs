@@ -3,6 +3,7 @@
 //! Module containing type for handling monophonic audio data.
 
 use super::*;
+use bae_utils::*;
 
 /// Type for a track of [`Mono`] samples
 ///
