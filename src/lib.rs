@@ -30,9 +30,9 @@ use std::ops::*;
 /// * Default - A good default value for audio samples is 0.
 /// * Most mathematical operators are required to be implemented to be able to
 /// perform common operations on sample values.
-/// * [`Mul`]/[`MulAssign`] is defined for both [`MathT`] as well as [`SampleT`]
+/// * [`Mul`]/[`MulAssign`] is defined for both [`Math`] as well as [`Sample`]
 /// for the convenience of common audio operations.
-/// * [`From`]/[`Into`] implemented for [`SampleT`] - These functions should be
+/// * [`From`]/[`Into`] implemented for [`Sample`] - These functions should be
 /// simple calls to [`from_sample`] and [`into_sample`] respectively.
 /// * [`TryFrom`]/[`Into`] implemented for [`Vec<_>`] - These functions should
 /// convert the sample values to the given standard integer types. As [`Vec`]s
@@ -53,8 +53,8 @@ use std::ops::*;
 ///
 /// [`Mul`]: https://doc.rust-lang.org/std/ops/trait.Mul.html
 /// [`MulAssign`]: https://doc.rust-lang.org/std/ops/trait.MulAssign.html
-/// [`MathT`]: ../type.MathT.html
-/// [`SampleT`]: ../type.SampleT.html
+/// [`Math`]: ../type.Math.html
+/// [`Sample`]: ../type.Sample.html
 /// [`From`]: https://doc.rust-lang.org/std/convert/trait.From.html
 /// [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
 /// [`from_sample`]: #tymethod.from_sample
@@ -73,12 +73,12 @@ pub trait SampleFormat:
     + SubAssign<Self>
     + Mul<Self, Output = Self>
     + MulAssign<Self>
-    + Mul<SampleT, Output = Self>
-    + MulAssign<SampleT>
-    + Mul<MathT, Output = Self>
-    + MulAssign<MathT>
-    + From<SampleT>
-    + Into<SampleT>
+    + Mul<Sample, Output = Self>
+    + MulAssign<Sample>
+    + Mul<Math, Output = Self>
+    + MulAssign<Math>
+    + From<Sample>
+    + Into<Sample>
     + TryFrom<Vec<u8>, Error = String>
     + Into<Vec<u8>>
     + TryFrom<Vec<i16>, Error = String>
@@ -87,16 +87,16 @@ pub trait SampleFormat:
     + Into<Vec<i32>>
 {
     /// Creates an object from a single monophonic sample.
-    fn from_sample(x: SampleT) -> Self;
+    fn from_sample(x: Sample) -> Self;
 
     /// Converts the given polyphonic sample to a monophonic sample.
-    fn into_sample(self) -> SampleT;
+    fn into_sample(self) -> Sample;
 
-    /// Returns the number of [`SampleT`] values held within a given
+    /// Returns the number of [`Sample`] values held within a given
     /// [`SampleFormat`]. A common use for this would be for ensuring [`Vec`]s
     /// given to [`try_from`] have the correct size.
     ///
-    /// [`SampleT`]: ../type.SampleT.html
+    /// [`Sample`]: ../type.Sample.html
     /// [`SampleFormat`]: trait.SampleFormat.html
     /// [`Vec`]: https://doc.rust-lang.org/std/vec/struct.Vec.html
     /// [`try_from`]: https://doc.rust-lang.org/std/convert/trait.TryFrom.html#tymethod.try_from
@@ -111,5 +111,5 @@ pub trait SampleFormat:
 /// [`Stereo::to_sample_format`]: stereo/struct.Stereo.html#method.to_sample_format
 pub trait Panner<G>: SampleFormat {
     /// Converts the monophonic sample into a polyphonic sample.
-    fn to_sample_format(s: SampleT, g: G) -> Self;
+    fn to_sample_format(s: Sample, g: G) -> Self;
 }

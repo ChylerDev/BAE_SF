@@ -15,7 +15,7 @@ pub type MonoTrackT = Vec<Mono>;
 #[repr(C)]
 pub struct Mono {
     /// The single, monophonic sample.
-    pub mono: SampleT,
+    pub mono: Sample,
 }
 
 impl Mono {
@@ -25,17 +25,17 @@ impl Mono {
     }
 
     /// Creates a new Mono object from the given sample value.
-    pub fn from(s: SampleT) -> Self {
+    pub fn from(s: Sample) -> Self {
         Mono { mono: s }
     }
 }
 
 impl SampleFormat for Mono {
-    fn from_sample(x: SampleT) -> Self {
+    fn from_sample(x: Sample) -> Self {
         Mono { mono: x }
     }
 
-    fn into_sample(self) -> SampleT {
+    fn into_sample(self) -> Sample {
         self.mono
     }
 
@@ -45,7 +45,7 @@ impl SampleFormat for Mono {
 }
 
 impl<T> Panner<T> for Mono {
-    fn to_sample_format(s: SampleT, _: T) -> Self {
+    fn to_sample_format(s: Sample, _: T) -> Self {
         Mono { mono: s }
     }
 }
@@ -105,43 +105,43 @@ impl MulAssign<Mono> for Mono {
     }
 }
 
-impl Mul<SampleT> for Mono {
+impl Mul<Sample> for Mono {
     type Output = Mono;
 
-    fn mul(self, rhs: SampleT) -> Self::Output {
+    fn mul(self, rhs: Sample) -> Self::Output {
         Mono {
             mono: self.mono * rhs,
         }
     }
 }
-impl MulAssign<SampleT> for Mono {
-    fn mul_assign(&mut self, rhs: SampleT) {
+impl MulAssign<Sample> for Mono {
+    fn mul_assign(&mut self, rhs: Sample) {
         self.mono *= rhs;
     }
 }
 
-impl Mul<MathT> for Mono {
+impl Mul<Math> for Mono {
     type Output = Mono;
 
-    fn mul(self, rhs: MathT) -> Self::Output {
+    fn mul(self, rhs: Math) -> Self::Output {
         Mono {
-            mono: (self.mono as MathT * rhs) as SampleT,
+            mono: (self.mono as Math * rhs) as Sample,
         }
     }
 }
-impl MulAssign<MathT> for Mono {
-    fn mul_assign(&mut self, rhs: MathT) {
-        self.mono = (self.mono as MathT * rhs) as SampleT;
+impl MulAssign<Math> for Mono {
+    fn mul_assign(&mut self, rhs: Math) {
+        self.mono = (self.mono as Math * rhs) as Sample;
     }
 }
 
-impl From<SampleT> for Mono {
-    fn from(s: SampleT) -> Self {
+impl From<Sample> for Mono {
+    fn from(s: Sample) -> Self {
         Mono::from_sample(s)
     }
 }
-impl Into<SampleT> for Mono {
-    fn into(self) -> SampleT {
+impl Into<Sample> for Mono {
+    fn into(self) -> Sample {
         Mono::into_sample(self)
     }
 }

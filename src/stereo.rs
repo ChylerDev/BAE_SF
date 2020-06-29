@@ -15,9 +15,9 @@ pub type StereoTrackT = Vec<Stereo>;
 #[repr(C)]
 pub struct Stereo {
     /// Left sample value.
-    pub left: SampleT,
+    pub left: Sample,
     /// Right sample value.
-    pub right: SampleT,
+    pub right: Sample,
 }
 
 impl Stereo {
@@ -33,21 +33,21 @@ impl Stereo {
     ///
     /// * `l` - the left audio sample.
     /// * `r` - the right audio sample.
-    pub fn from(l: SampleT, r: SampleT) -> Self {
+    pub fn from(l: Sample, r: Sample) -> Self {
         Stereo { left: l, right: r }
     }
 }
 
 impl SampleFormat for Stereo {
-    fn from_sample(x: SampleT) -> Self {
+    fn from_sample(x: Sample) -> Self {
         Stereo {
-            left: x * SampleT::sqrt(0.5),
-            right: x * SampleT::sqrt(0.5),
+            left: x * Sample::sqrt(0.5),
+            right: x * Sample::sqrt(0.5),
         }
     }
 
-    fn into_sample(self) -> SampleT {
-        (self.left + self.right) / SampleT::sqrt(0.5)
+    fn into_sample(self) -> Sample {
+        (self.left + self.right) / Sample::sqrt(0.5)
     }
 
     fn num_samples() -> usize {
@@ -60,40 +60,40 @@ impl SampleFormat for Stereo {
 /// panned full left and 1 is panned full right. If the given value is not
 /// within this range, it is clamped to it.
 impl Panner<f32> for Stereo {
-    fn to_sample_format(s: SampleT, g: f32) -> Self {
+    fn to_sample_format(s: Sample, g: f32) -> Self {
         let l_lerp = if g <= 0.0 {
-            clerp(g as MathT, -1.0, 0.0, -3.0, -120.0)
+            clerp(g as Math, -1.0, 0.0, -3.0, -120.0)
         } else {
-            clerp(g as MathT, 0.0, 1.0, 0.0, -3.0)
+            clerp(g as Math, 0.0, 1.0, 0.0, -3.0)
         };
         let r_lerp = if g >= 0.0 {
-            clerp(g as MathT, 0.0, 1.0, -3.0, -120.0)
+            clerp(g as Math, 0.0, 1.0, -3.0, -120.0)
         } else {
-            clerp(g as MathT, -1.0, 0.0, 0.0, -3.0)
+            clerp(g as Math, -1.0, 0.0, 0.0, -3.0)
         };
 
         Stereo {
-            left: (db_to_linear(l_lerp) * s as MathT) as SampleT,
-            right: (db_to_linear(r_lerp) * s as MathT) as SampleT,
+            left: (db_to_linear(l_lerp) * s as Math) as Sample,
+            right: (db_to_linear(r_lerp) * s as Math) as Sample,
         }
     }
 }
 impl Panner<f64> for Stereo {
-    fn to_sample_format(s: SampleT, g: f64) -> Self {
+    fn to_sample_format(s: Sample, g: f64) -> Self {
         let l_lerp = if g <= 0.0 {
-            clerp(g as MathT, -1.0, 0.0, -3.0, -120.0)
+            clerp(g as Math, -1.0, 0.0, -3.0, -120.0)
         } else {
-            clerp(g as MathT, 0.0, 1.0, 0.0, -3.0)
+            clerp(g as Math, 0.0, 1.0, 0.0, -3.0)
         };
         let r_lerp = if g >= 0.0 {
-            clerp(g as MathT, 0.0, 1.0, -3.0, -120.0)
+            clerp(g as Math, 0.0, 1.0, -3.0, -120.0)
         } else {
-            clerp(g as MathT, -1.0, 0.0, 0.0, -3.0)
+            clerp(g as Math, -1.0, 0.0, 0.0, -3.0)
         };
 
         Stereo {
-            left: (db_to_linear(l_lerp) * s as MathT) as SampleT,
-            right: (db_to_linear(r_lerp) * s as MathT) as SampleT,
+            left: (db_to_linear(l_lerp) * s as Math) as Sample,
+            right: (db_to_linear(r_lerp) * s as Math) as Sample,
         }
     }
 }
@@ -160,47 +160,47 @@ impl std::ops::MulAssign<Stereo> for Stereo {
     }
 }
 
-impl std::ops::Mul<SampleT> for Stereo {
+impl std::ops::Mul<Sample> for Stereo {
     type Output = Stereo;
 
-    fn mul(self, rhs: SampleT) -> Self::Output {
+    fn mul(self, rhs: Sample) -> Self::Output {
         Stereo {
             left: self.left * rhs,
             right: self.right * rhs,
         }
     }
 }
-impl std::ops::MulAssign<SampleT> for Stereo {
-    fn mul_assign(&mut self, rhs: SampleT) {
+impl std::ops::MulAssign<Sample> for Stereo {
+    fn mul_assign(&mut self, rhs: Sample) {
         self.left *= rhs;
         self.right *= rhs;
     }
 }
 
-impl std::ops::Mul<MathT> for Stereo {
+impl std::ops::Mul<Math> for Stereo {
     type Output = Stereo;
 
-    fn mul(self, rhs: MathT) -> Self::Output {
+    fn mul(self, rhs: Math) -> Self::Output {
         Stereo {
-            left: (self.left as MathT * rhs) as SampleT,
-            right: (self.right as MathT * rhs) as SampleT,
+            left: (self.left as Math * rhs) as Sample,
+            right: (self.right as Math * rhs) as Sample,
         }
     }
 }
-impl std::ops::MulAssign<MathT> for Stereo {
-    fn mul_assign(&mut self, rhs: MathT) {
-        self.left *= rhs as SampleT;
-        self.right *= rhs as SampleT;
+impl std::ops::MulAssign<Math> for Stereo {
+    fn mul_assign(&mut self, rhs: Math) {
+        self.left *= rhs as Sample;
+        self.right *= rhs as Sample;
     }
 }
 
-impl From<SampleT> for Stereo {
-    fn from(s: SampleT) -> Self {
+impl From<Sample> for Stereo {
+    fn from(s: Sample) -> Self {
         Stereo::from_sample(s)
     }
 }
-impl Into<SampleT> for Stereo {
-    fn into(self) -> SampleT {
+impl Into<Sample> for Stereo {
+    fn into(self) -> Sample {
         self.into_sample()
     }
 }
