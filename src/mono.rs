@@ -56,7 +56,7 @@ impl Neg for Mono {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
-        Mono { mono: -self.mono }
+        Mono { mono: Sample(-self.mono.0) }
     }
 }
 
@@ -65,13 +65,13 @@ impl Add<Mono> for Mono {
 
     fn add(self, rhs: Mono) -> Self::Output {
         Mono {
-            mono: self.mono + rhs.mono,
+            mono: Sample(self.mono.0 + rhs.mono.0),
         }
     }
 }
 impl AddAssign<Mono> for Mono {
     fn add_assign(&mut self, rhs: Mono) {
-        self.mono += rhs.mono;
+        self.mono.0 += rhs.mono.0;
     }
 }
 
@@ -80,13 +80,13 @@ impl Sub<Mono> for Mono {
 
     fn sub(self, rhs: Mono) -> Self {
         Mono {
-            mono: self.mono + rhs.mono,
+            mono: Sample(self.mono.0 + rhs.mono.0),
         }
     }
 }
 impl SubAssign<Mono> for Mono {
     fn sub_assign(&mut self, rhs: Mono) {
-        self.mono -= rhs.mono;
+        self.mono.0 -= rhs.mono.0;
     }
 }
 
@@ -95,13 +95,13 @@ impl Mul<Mono> for Mono {
 
     fn mul(self, rhs: Mono) -> Self::Output {
         Mono {
-            mono: self.mono * rhs.mono,
+            mono: Sample(self.mono.0 * rhs.mono.0),
         }
     }
 }
 impl MulAssign<Mono> for Mono {
     fn mul_assign(&mut self, rhs: Mono) {
-        self.mono *= rhs.mono;
+        self.mono.0 *= rhs.mono.0;
     }
 }
 
@@ -110,13 +110,13 @@ impl Mul<Sample> for Mono {
 
     fn mul(self, rhs: Sample) -> Self::Output {
         Mono {
-            mono: self.mono * rhs,
+            mono: Sample(self.mono.0 * rhs.0),
         }
     }
 }
 impl MulAssign<Sample> for Mono {
     fn mul_assign(&mut self, rhs: Sample) {
-        self.mono *= rhs;
+        self.mono.0 *= rhs.0;
     }
 }
 
@@ -125,13 +125,13 @@ impl Mul<Math> for Mono {
 
     fn mul(self, rhs: Math) -> Self::Output {
         Mono {
-            mono: (self.mono as Math * rhs) as Sample,
+            mono: Sample((self.mono.0 as AccurateMath * rhs.0) as FastMath),
         }
     }
 }
 impl MulAssign<Math> for Mono {
     fn mul_assign(&mut self, rhs: Math) {
-        self.mono = (self.mono as Math * rhs) as Sample;
+        self.mono = Sample((self.mono.0 as AccurateMath * rhs.0) as FastMath);
     }
 }
 

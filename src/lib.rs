@@ -10,7 +10,7 @@
 //! type, the upper byte is ignored or explicitly set to 0.
 
 #![warn(missing_docs)]
-#![doc(html_root_url = "https://docs.rs/bae_sf/0.14.0")]
+#![doc(html_root_url = "https://docs.rs/bae_sf/0.14.1")]
 
 use bae_types::*;
 

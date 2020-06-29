@@ -41,13 +41,13 @@ impl Stereo {
 impl SampleFormat for Stereo {
     fn from_sample(x: Sample) -> Self {
         Stereo {
-            left: x * Sample::sqrt(0.5),
-            right: x * Sample::sqrt(0.5),
+            left: Sample(x.0 * FastMath::sqrt(0.5)),
+            right: Sample(x.0 * FastMath::sqrt(0.5)),
         }
     }
 
     fn into_sample(self) -> Sample {
-        (self.left + self.right) / Sample::sqrt(0.5)
+        Sample((self.left.0 + self.right.0) / FastMath::sqrt(0.5))
     }
 
     fn num_samples() -> usize {
@@ -62,38 +62,50 @@ impl SampleFormat for Stereo {
 impl Panner<f32> for Stereo {
     fn to_sample_format(s: Sample, g: f32) -> Self {
         let l_lerp = if g <= 0.0 {
-            clerp(g as Math, -1.0, 0.0, -3.0, -120.0)
+            clerp(g as AccurateMath, -1.0, 0.0, -3.0, -120.0)
         } else {
-            clerp(g as Math, 0.0, 1.0, 0.0, -3.0)
+            clerp(g as AccurateMath, 0.0, 1.0, 0.0, -3.0)
         };
         let r_lerp = if g >= 0.0 {
-            clerp(g as Math, 0.0, 1.0, -3.0, -120.0)
+            clerp(g as AccurateMath, 0.0, 1.0, -3.0, -120.0)
         } else {
-            clerp(g as Math, -1.0, 0.0, 0.0, -3.0)
+            clerp(g as AccurateMath, -1.0, 0.0, 0.0, -3.0)
         };
 
         Stereo {
-            left: (db_to_linear(l_lerp) * s as Math) as Sample,
-            right: (db_to_linear(r_lerp) * s as Math) as Sample,
+            left: Sample(
+                (
+                    db_to_linear(
+                        Math(l_lerp)
+                    ).0 * s.0 as AccurateMath
+                ) as FastMath
+            ),
+            right: Sample(
+                (
+                    db_to_linear(
+                        Math(r_lerp)
+                    ).0 * s.0 as AccurateMath
+                ) as FastMath
+            ),
         }
     }
 }
 impl Panner<f64> for Stereo {
     fn to_sample_format(s: Sample, g: f64) -> Self {
         let l_lerp = if g <= 0.0 {
-            clerp(g as Math, -1.0, 0.0, -3.0, -120.0)
+            clerp(g as AccurateMath, -1.0, 0.0, -3.0, -120.0)
         } else {
-            clerp(g as Math, 0.0, 1.0, 0.0, -3.0)
+            clerp(g as AccurateMath, 0.0, 1.0, 0.0, -3.0)
         };
         let r_lerp = if g >= 0.0 {
-            clerp(g as Math, 0.0, 1.0, -3.0, -120.0)
+            clerp(g as AccurateMath, 0.0, 1.0, -3.0, -120.0)
         } else {
-            clerp(g as Math, -1.0, 0.0, 0.0, -3.0)
+            clerp(g as AccurateMath, -1.0, 0.0, 0.0, -3.0)
         };
 
         Stereo {
-            left: (db_to_linear(l_lerp) * s as Math) as Sample,
-            right: (db_to_linear(r_lerp) * s as Math) as Sample,
+            left: Sample((db_to_linear(Math(l_lerp)).0 * s.0 as AccurateMath) as FastMath),
+            right: Sample((db_to_linear(Math(r_lerp)).0 * s.0 as AccurateMath) as FastMath),
         }
     }
 }
@@ -103,8 +115,8 @@ impl std::ops::Neg for Stereo {
 
     fn neg(self) -> Self::Output {
         Stereo {
-            left: -self.left,
-            right: -self.right,
+            left: Sample(-self.left.0),
+            right: Sample(-self.right.0),
         }
     }
 }
@@ -114,15 +126,15 @@ impl std::ops::Add<Stereo> for Stereo {
 
     fn add(self, rhs: Stereo) -> Self::Output {
         Stereo {
-            left: self.left + rhs.left,
-            right: self.right + rhs.right,
+            left: Sample(self.left.0 + rhs.left.0),
+            right: Sample(self.right.0 + rhs.right.0),
         }
     }
 }
 impl std::ops::AddAssign<Stereo> for Stereo {
     fn add_assign(&mut self, rhs: Stereo) {
-        self.left += rhs.left;
-        self.right += rhs.right;
+        self.left.0 += rhs.left.0;
+        self.right.0 += rhs.right.0;
     }
 }
 
@@ -131,15 +143,15 @@ impl std::ops::Sub<Stereo> for Stereo {
 
     fn sub(self, rhs: Stereo) -> Self {
         Stereo {
-            left: self.left - rhs.left,
-            right: self.right - rhs.right,
+            left: Sample(self.left.0 - rhs.left.0),
+            right: Sample(self.right.0 - rhs.right.0),
         }
     }
 }
 impl std::ops::SubAssign<Stereo> for Stereo {
     fn sub_assign(&mut self, rhs: Stereo) {
-        self.left -= rhs.left;
-        self.right -= rhs.right;
+        self.left.0 -= rhs.left.0;
+        self.right.0 -= rhs.right.0;
     }
 }
 
@@ -148,15 +160,15 @@ impl std::ops::Mul<Stereo> for Stereo {
 
     fn mul(self, rhs: Stereo) -> Self::Output {
         Stereo {
-            left: self.left * rhs.left,
-            right: self.right * rhs.right,
+            left: Sample(self.left.0 * rhs.left.0),
+            right: Sample(self.right.0 * rhs.right.0),
         }
     }
 }
 impl std::ops::MulAssign<Stereo> for Stereo {
     fn mul_assign(&mut self, rhs: Stereo) {
-        self.left *= rhs.left;
-        self.right *= rhs.right;
+        self.left.0 *= rhs.left.0;
+        self.right.0 *= rhs.right.0;
     }
 }
 
@@ -165,15 +177,15 @@ impl std::ops::Mul<Sample> for Stereo {
 
     fn mul(self, rhs: Sample) -> Self::Output {
         Stereo {
-            left: self.left * rhs,
-            right: self.right * rhs,
+            left: Sample(self.left.0 * rhs.0),
+            right: Sample(self.right.0 * rhs.0),
         }
     }
 }
 impl std::ops::MulAssign<Sample> for Stereo {
     fn mul_assign(&mut self, rhs: Sample) {
-        self.left *= rhs;
-        self.right *= rhs;
+        self.left.0 *= rhs.0;
+        self.right.0 *= rhs.0;
     }
 }
 
@@ -182,15 +194,15 @@ impl std::ops::Mul<Math> for Stereo {
 
     fn mul(self, rhs: Math) -> Self::Output {
         Stereo {
-            left: (self.left as Math * rhs) as Sample,
-            right: (self.right as Math * rhs) as Sample,
+            left: Sample((self.left.0 as AccurateMath * rhs.0) as FastMath),
+            right: Sample((self.right.0 as AccurateMath * rhs.0) as FastMath),
         }
     }
 }
 impl std::ops::MulAssign<Math> for Stereo {
     fn mul_assign(&mut self, rhs: Math) {
-        self.left *= rhs as Sample;
-        self.right *= rhs as Sample;
+        self.left.0 *= rhs.0 as FastMath;
+        self.right.0 *= rhs.0 as FastMath;
     }
 }
 
